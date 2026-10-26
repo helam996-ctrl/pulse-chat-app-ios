@@ -55,17 +55,23 @@ jobs:
           xcrun simctl boot "$DEVICE_ID" || true
           echo "SIMULATOR_DEVICE_ID=$DEVICE_ID" >> $GITHUB_ENV
 
+      - name: Inspect Project and Schemes
+        working-directory: iOSChatApp
+        run: |
+          xcodebuild -list -project iOSChatApp.xcodeproj
+
       - name: Build Application
         working-directory: iOSChatApp
         run: |
           echo "Building using destination: id=$SIMULATOR_DEVICE_ID"
-          xcodebuild clean build \
+          xcodebuild build \
             -project iOSChatApp.xcodeproj \
             -scheme iOSChatApp \
             -destination "id=$SIMULATOR_DEVICE_ID" \
             -derivedDataPath derivedData \
             CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO
+            CODE_SIGNING_REQUIRED=NO \
+            COMPILER_INDEX_STORE_ENABLE=NO
 
       - name: Run UI Tests and Capture Screenshots
         working-directory: iOSChatApp

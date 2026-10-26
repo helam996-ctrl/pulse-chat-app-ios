@@ -9,9 +9,9 @@ let package = Package(
         .macOS(.v13)
     ],
     products: [
-        .library(
-            name: "iOSChatAppCore",
-            targets: ["iOSChatAppCore"]
+        .executable(
+            name: "iOSChatApp",
+            targets: ["iOSChatApp"]
         )
     ],
     dependencies: [
@@ -21,8 +21,8 @@ let package = Package(
         )
     ],
     targets: [
-        .target(
-            name: "iOSChatAppCore",
+        .executableTarget(
+            name: "iOSChatApp",
             dependencies: [
                 .product(name: "FirebaseAuth", package: "firebase-ios-sdk"),
                 .product(name: "FirebaseFirestore", package: "firebase-ios-sdk"),
@@ -35,7 +35,7 @@ let package = Package(
         ),
         .testTarget(
             name: "iOSChatAppUITests",
-            dependencies: ["iOSChatAppCore"],
+            dependencies: ["iOSChatApp"],
             path: "iOSChatAppUITests"
         )
     ]
