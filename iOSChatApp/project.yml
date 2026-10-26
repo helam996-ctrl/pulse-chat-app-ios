@@ -6,7 +6,7 @@ options:
     iOS: "16.0"
 
 packages:
-  Firebase:
+  firebase-ios-sdk:
     url: https://github.com/firebase/firebase-ios-sdk.git
     from: 10.20.0
 
@@ -14,14 +14,15 @@ targets:
   iOSChatApp:
     type: application
     platform: iOS
+    deploymentTarget: "16.0"
     sources:
       - path: Sources
     dependencies:
-      - package: Firebase
+      - package: firebase-ios-sdk
         product: FirebaseAuth
-      - package: Firebase
+      - package: firebase-ios-sdk
         product: FirebaseFirestore
-      - package: Firebase
+      - package: firebase-ios-sdk
         product: FirebaseStorage
     settings:
       base:
@@ -36,6 +37,7 @@ targets:
   iOSChatAppUITests:
     type: bundle.ui-testing
     platform: iOS
+    deploymentTarget: "16.0"
     sources:
       - path: iOSChatAppUITests
     dependencies:
