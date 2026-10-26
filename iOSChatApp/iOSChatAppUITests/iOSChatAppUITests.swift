@@ -65,7 +65,7 @@ final class iOSChatAppUITests: XCTestCase {
             add(mainAttachment)
             
             let mainFileUrl = screenshotsDirectory.appendingPathComponent("MainMessagesView.png")
-            try? mainScreenshot.pngRepresentation.write(to: mainFileUrl)
+            try? mainMessagesScreenshot.pngRepresentation.write(to: mainFileUrl)
         } else {
             // Dismiss or capture whatever view is visible
             let currentScreenshot = app.screenshot()

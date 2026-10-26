@@ -18,11 +18,9 @@ public class FirebaseManager: NSObject, ObservableObject {
             if let path = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist"),
                let options = FirebaseOptions(contentsOfFile: path) {
                 FirebaseApp.configure(options: options)
-            #if SWIFT_PACKAGE
-            } else if let path = Bundle.module.path(forResource: "GoogleService-Info", ofType: "plist"),
+            } else if let path = Bundle(for: FirebaseManager.self).path(forResource: "GoogleService-Info", ofType: "plist"),
                       let options = FirebaseOptions(contentsOfFile: path) {
                 FirebaseApp.configure(options: options)
-            #endif
             } else {
                 FirebaseApp.configure()
             }
