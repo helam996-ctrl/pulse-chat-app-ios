@@ -1,0 +1,62 @@
+name: iOSChatApp
+options:
+  bundleIdPrefix: com.pulsechat
+  xcodeVersion: "15.0"
+  deploymentTarget:
+    iOS: "16.0"
+
+packages:
+  Firebase:
+    url: https://github.com/firebase/firebase-ios-sdk.git
+    from: 10.20.0
+
+targets:
+  iOSChatApp:
+    type: application
+    platform: iOS
+    sources:
+      - path: Sources
+    dependencies:
+      - package: Firebase
+        product: FirebaseAuth
+      - package: Firebase
+        product: FirebaseFirestore
+      - package: Firebase
+        product: FirebaseStorage
+    settings:
+      base:
+        PRODUCT_NAME: iOSChatApp
+        PRODUCT_BUNDLE_IDENTIFIER: com.pulsechat.app
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations: "UIInterfaceOrientationPortrait"
+        SWIFT_VERSION: "5.9"
+        GENERATE_INFOPLIST_FILE: YES
+        ENABLE_USER_SCRIPT_SANDBOXING: NO
+
+  iOSChatAppUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: iOSChatAppUITests
+    dependencies:
+      - target: iOSChatApp
+    settings:
+      base:
+        PRODUCT_NAME: iOSChatAppUITests
+        PRODUCT_BUNDLE_IDENTIFIER: com.pulsechat.app.uitests
+        TEST_TARGET_NAME: iOSChatApp
+        SWIFT_VERSION: "5.9"
+        GENERATE_INFOPLIST_FILE: YES
+
+schemes:
+  iOSChatApp:
+    build:
+      targets:
+        iOSChatApp: all
+        iOSChatAppUITests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - iOSChatAppUITests
