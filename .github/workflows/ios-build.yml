@@ -44,37 +44,42 @@ jobs:
             echo "No secret provided, using sanitized template for build verification."
           fi
 
+      - name: Select Simulator Device
+        run: |
+          xcrun simctl list devices available
+          DEVICE_ID=$(xcrun simctl list devices available iPhone | grep -m 1 -oE '[0-9A-F-]{36}')
+          if [ -z "$DEVICE_ID" ]; then
+            DEVICE_ID=$(xcrun simctl list devices available | grep -m 1 -oE '[0-9A-F-]{36}')
+          fi
+          echo "Selected Simulator Device ID: $DEVICE_ID"
+          xcrun simctl boot "$DEVICE_ID" || true
+          echo "SIMULATOR_DEVICE_ID=$DEVICE_ID" >> $GITHUB_ENV
+
       - name: Build Application
         working-directory: iOSChatApp
         run: |
+          echo "Building using destination: id=$SIMULATOR_DEVICE_ID"
           xcodebuild clean build \
             -project iOSChatApp.xcodeproj \
             -scheme iOSChatApp \
-            -destination 'generic/platform=iOS Simulator' \
+            -destination "id=$SIMULATOR_DEVICE_ID" \
             -derivedDataPath derivedData \
-            CODE_SIGNING_ALLOWED=NO
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO
 
       - name: Run UI Tests and Capture Screenshots
         working-directory: iOSChatApp
         run: |
           mkdir -p output/screenshots
           
-          # Find an available iPhone simulator device
-          xcrun simctl list devices available
-          DEVICE_ID=$(xcrun simctl list devices iPhone available | grep -m 1 -oE '[0-9A-F-]{36}')
-          echo "Selected Simulator Device ID: $DEVICE_ID"
-          
-          if [ -n "$DEVICE_ID" ]; then
-            xcrun simctl boot "$DEVICE_ID" || true
-            
-            xcodebuild test \
-              -project iOSChatApp.xcodeproj \
-              -scheme iOSChatApp \
-              -destination "id=$DEVICE_ID" \
-              -resultBundlePath output/TestResults.xcresult \
-              -derivedDataPath derivedData \
-              CODE_SIGNING_ALLOWED=NO || true
-          fi
+          xcodebuild test \
+            -project iOSChatApp.xcodeproj \
+            -scheme iOSChatApp \
+            -destination "id=$SIMULATOR_DEVICE_ID" \
+            -resultBundlePath output/TestResults.xcresult \
+            -derivedDataPath derivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO || true
           
           # Extract all screenshots from derived data and test result bundles
           find derivedData/ -name "*.png" -exec cp {} output/screenshots/ \; 2>/dev/null || true
