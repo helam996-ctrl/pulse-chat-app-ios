@@ -55,15 +55,22 @@ jobs:
           xcrun simctl boot "$DEVICE_ID" || true
           echo "SIMULATOR_DEVICE_ID=$DEVICE_ID" >> $GITHUB_ENV
 
-      - name: Inspect Project and Schemes
+      - name: Diagnose Dependencies and Schemes
         working-directory: iOSChatApp
         run: |
-          xcodebuild -list -project iOSChatApp.xcodeproj
+          echo "### Environment Diagnostics" >> $GITHUB_STEP_SUMMARY
+          echo "- Simulator Device ID: \`$SIMULATOR_DEVICE_ID\`" >> $GITHUB_STEP_SUMMARY
+          
+          echo "### Xcode Project Information" >> $GITHUB_STEP_SUMMARY
+          echo '```text' >> $GITHUB_STEP_SUMMARY
+          xcodebuild -list -project iOSChatApp.xcodeproj >> $GITHUB_STEP_SUMMARY 2>&1 || true
+          echo '```' >> $GITHUB_STEP_SUMMARY
 
       - name: Build Application
         working-directory: iOSChatApp
         run: |
-          echo "Building using destination: id=$SIMULATOR_DEVICE_ID"
+          echo "Building scheme iOSChatApp on simulator $SIMULATOR_DEVICE_ID..."
+          set -o pipefail
           xcodebuild build \
             -project iOSChatApp.xcodeproj \
             -scheme iOSChatApp \
@@ -71,7 +78,7 @@ jobs:
             -derivedDataPath derivedData \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
-            COMPILER_INDEX_STORE_ENABLE=NO
+            COMPILER_INDEX_STORE_ENABLE=NO 2>&1 | tee build.log || (echo "### Build Failure Log" >> $GITHUB_STEP_SUMMARY && echo '```text' >> $GITHUB_STEP_SUMMARY && tail -n 80 build.log >> $GITHUB_STEP_SUMMARY && echo '```' >> $GITHUB_STEP_SUMMARY && exit 1)
 
       - name: Run UI Tests and Capture Screenshots
         working-directory: iOSChatApp
